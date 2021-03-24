@@ -18,9 +18,12 @@ $ iex -pa my/code/path -pa another/code/path
 
 ```elixir
 $ mix compile
+$ mix format mix.exs "lib/**/*.{ex,exs}" "test/**/*.{ex,exs}"
 $ mix run -e "IO.puts(MyProject.hello())"
 world
 ```
+
+- https://hexdocs.pm/mix/Mix.Tasks.Format.html
 
 ### Kernel
 
@@ -44,6 +47,11 @@ true
 > apply(IO, :puts, ["Dynamic function call."])
 Dynamic function call.
 ```
+
+- https://hexdocs.pm/elixir/master/Kernel.html
+- https://hexdocs.pm/iex/IEx.html
+- https://hexdocs.pm/elixir/master/Integer.html
+- https://hexdocs.pm/elixir/Kernel.SpecialForms.html
 
 ### Tuples
 
@@ -95,6 +103,8 @@ true
 [2, 3, 4]
 ```
 
+- https://hexdocs.pm/elixir/List.html
+
 ### Maps
 
 ```elixir
@@ -139,6 +149,8 @@ true
 > "String" <> " " <> "concatenation"
 "String concatenation"
 ```
+
+- https://hexdocs.pm/elixir/String.html
 
 ### Character lists
 
@@ -199,6 +211,9 @@ true
 [100, ...]
 ```
 
+- https://hexdocs.pm/elixir/Enum.html
+- https://hexdocs.pm/elixir/Keyword.html
+
 ### MapSets
 
 ```elixir
@@ -210,8 +225,9 @@ true
 false
 > days = MapSet.put(days, :thursday)
 #MapSet<[:monday, :thursday, :tuesday, :wednesday]>
-
 ```
+
+- https://hexdocs.pm/elixir/MapSet.html
 
 ### Date, Time and misc
 
@@ -262,7 +278,7 @@ false
 
 ### Specs
 
-```bash
+```elixir
 # Specify the types of a function's arguments return w/ @spec
 defmodule Circle do
   @pi 3.14159
@@ -275,6 +291,9 @@ defmodule Circle do
 end
 ```
 
+- https://hexdocs.pm/elixir/typespecs.html
+- https://hexdocs.pm/elixir/Module.html
+
 ### Scripts
 
 ```elixir
@@ -286,3 +305,5 @@ end
 
 MyModule.run
 ```
+
+- https://elixirschool.com/en/lessons/advanced/escripts/

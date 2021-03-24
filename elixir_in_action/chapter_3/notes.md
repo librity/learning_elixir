@@ -16,6 +16,8 @@
 > [_, {name, _}, _] = [{"Bob", 25}, {"Alice", 30}, {"John", 35}]
 ```
 
+- https://hexdocs.pm/elixir/master/patterns-and-guards.html
+
 ### Pin Operator
 
 ```elixir
@@ -81,4 +83,158 @@
 {{2018, 11, 11}, {21, 32, 34}}
 > hour
 21
+```
+
+### Multiclause function
+
+```elixir
+
+defmodule Geometry do
+  def area({:rectangle, a, b}), do: a * b
+  def area({:square, a}), do: a * a
+  def area({:circle, r}), do: r * r * 3.14
+  def area(unknown), do: {:error, {:unknown_shape, unknown}}
+end
+
+> Geometry.area({:rectangle, 4, 5})
+20
+> Geometry.area({:square, 5})
+25
+> Geometry.area({:circle, 4})
+50.24
+> Geometry.area({:triangle, 1, 2, 3})
+{:error, {:unknown_shape, {:triangle, 1, 2, 3}}}
+
+> fun = &Geometry.area/1
+> fun.({:circle, 4})
+50.24
+> fun.({:square, 5})
+25
+```
+
+### Guards
+
+```elixir
+defmodule TestNum do
+  def test(x) when is_number(x) and x < 0, do: :negative
+  def test(0), do: :zero
+  def test(x) when is_number(x) and x > 0, do: :positive
+end
+
+> TestNum.test(-1)
+:negative
+> TestNum.test(0)
+:zero
+> TestNum.test(1)
+:positive
+> TestNum.test(:not_a_number)
+** (FunctionClauseError) no function clause matching in TestNum.test/1
+
+defmodule ListHelper do
+  def smallest(list) when length(list) > 0, do: Enum.min(list)
+  def smallest(_), do: {:error, :invalid_argument}
+end
+
+> ListHelper.smallest([123, 4, 9])
+> ListHelper.smallest(123)
+```
+
+- https://hexdocs.pm/elixir/guards.html
+
+Operators allowed in Guard:
+
+- `==, !=, ===, !==, >, <, <=, >=`
+- `and, or, not, !`
+- `+, -, *, /`
+- `Kernel.is_number/1`, `Kernel.is_atom/1`, etc.
+
+### Type-order hierarchy
+
+```elixir
+number < atom < reference < fun < port < pid <  tuple < map < list < bitstring (binary)
+```
+
+### Multiclause lambdas
+
+```elixir
+test_num = fn
+  x when is_number(x) and x < 0 ->
+    :negative
+
+  0 ->
+    :zero
+
+  x when is_number(x) and x > 0 ->
+    :positive
+end
+
+> test_num.(-1)
+:negative
+> test_num.(0)
+:zero
+> test_num.(1)
+:positive
+```
+
+### Branching with multiclause functions
+
+```elixir
+defmodule TestList do
+  def empty?([]), do: true
+  def empty?([_ | _]), do: false
+end
+```
+
+```elixir
+defmodule Polymorphic do
+  def double(x) when is_number(x), do: 2 * x
+  def double(x) when is_binary(x), do: x <> x
+end
+
+> Polymorphic.double(3)
+6
+> Polymorphic.double("Jar")
+"JarJar"
+```
+
+```elixir
+defmodule Fact do
+  def fact(0), do: 1
+  def fact(n), do: n * fact(n - 1)
+end
+
+> Fact.fact(1)
+1
+> Fact.fact(3)
+6
+```
+
+```elixir
+defmodule ListHelper do
+  def sum([]), do: 0
+  def sum([head | tail]), do: head + sum(tail)
+end
+
+> ListHelper.sum([])
+0
+> ListHelper.sum([1, 2, 3])
+6
+```
+
+### if and unless
+
+```elixir
+
+```
+
+###
+
+```elixir
+
+```
+
+###
+
+```elixir
+
 ```
