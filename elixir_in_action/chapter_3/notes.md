@@ -224,17 +224,336 @@ end
 ### if and unless
 
 ```elixir
+if condition, do: something, else: another_thing
 
+> if 5 > 3, do: :one
+:one
+> if 5 < 3, do: :one
+nil
+> if 5 < 3, do: :one, else: :two
+:two
+
+def max(a, b) do
+  if a >= b, do: a, else: b
+end
+
+def max(a, b) do
+  unless a >= b, do: b, else: a
+end
 ```
 
-###
+### cond
 
 ```elixir
-
+def max(a, b) do
+  cond do
+    a >= b -> a
+    true -> b
+  end
+end
 ```
 
-###
+### case
 
 ```elixir
-
+def max(a, b) do
+  case a >= b do
+    true -> a
+    false -> b
+  end
+end
 ```
+
+### **_with_**
+
+```elixir
+defmodule UserExtraction do
+  def extract_user(user) do
+    with {:ok, login} <- extract_login(user),
+         {:ok, email} <- extract_email(user),
+         {:ok, password} <- extract_password(user) do
+      {:ok, %{login: login, email: email, password: password}}
+    end
+  end
+end
+
+> UserExtraction.extract_user(%{})
+{:error, "login missing"}
+> UserExtraction.extract_user(%{"login" => "some_login"})
+{:error, "email missing"}
+> UserExtraction.extract_user(%{"login" => "some_login", "email" => "some_email"})
+{:error, "password missing"}
+> UserExtraction.extract_user(%{
+    "login" => "some_login",
+    "email" => "some_email",
+    "password" => "some_password"
+  })
+{:ok, %{email: "some_email", login: "some_login", password: "some_password"}}
+```
+
+### Iterating with recursion
+
+```elixir
+defmodule NaturalNums do
+  def print(number) when is_float(number), do: number |> trunc() |> print()
+
+  def print(0), do: IO.puts(0)
+
+  def print(number) when number > 0 do
+    print(number - 1)
+    IO.puts(number)
+  end
+
+  def print(number) when number < 0 do
+    print(number + 1)
+    IO.puts(number)
+  end
+end
+
+> NaturalNums.print(3)
+> NaturalNums.print(-3)
+> NaturalNums.print(3.4)
+> NaturalNums.print(-3.4)
+```
+
+- https://hexdocs.pm/elixir/master/Kernel.html#is_float/1
+- https://stackoverflow.com/questions/55580230/what-is-the-best-way-to-round-a-float-in-elixir
+- https://stackoverflow.com/questions/48233043/how-do-i-convert-an-float-to-an-integer-in-elixir
+
+### Tail-call optimization
+
+```elixir
+defmodule ListHelper do
+  def sum(list), do: recurse_sum(0, list)
+
+  defp recurse_sum(current_sum, []), do: current_sum
+  defp recurse_sum(current_sum, [head | tail]), do: (head + current_sum) |> recurse_sum(tail)
+end
+
+> ListHelper.sum([1, 2, 3])
+6
+> ListHelper.sum([])
+0
+```
+
+```elixir
+defmodule ListLength do
+  def call(list), do: recurse_list_length(list, 0)
+  defp recurse_list_length([], length), do: length
+  defp recurse_list_length([_head | tails], length), do: tails |> recurse_list_length(length + 1)
+end
+
+> ListLength.call([1, 2, 3, 4, 5])
+> ListLength.call([1])
+> ListLength.call([])
+```
+
+```elixir
+defmodule ListRange do
+  def call(from, to), do: recurse_range(from, to, [])
+  defp recurse_range(from, to, result) when from > to, do: result
+  defp recurse_range(from, to, result), do: recurse_range(from, to - 1, [to | result])
+end
+
+> ListRange.call(4, 10)
+> ListRange.call(-12, 10)
+> ListRange.call(-12, 8)
+> ListRange.call(3, 3)
+```
+
+```elixir
+defmodule ListPositive do
+  def call(list), do: filter_positive(list, [])
+  defp filter_positive([], result), do: Enum.reverse(result)
+
+  defp filter_positive([head | tails], result) when head > 0,
+    do: filter_positive(tails, [head | result])
+
+  defp filter_positive([head | tails], result), do: filter_positive(tails, result)
+end
+
+> ListPositive.call([1, 3, -45, 0, 4, 5])
+> ListPositive.call([1, -3, 4, -5])
+> ListPositive.call([1, 4, 12, 2, -3])
+> ListPositive.call([-1, -4, -12, -2, -3])
+```
+
+### Higher-order functions
+
+```elixir
+> Enum.map([1, 2, 3], &(2 * &1))
+> Enum.filter([1, 2, 3], &(rem(&1, 2) == 1))
+
+> Enum.reduce([1, 2, 3], 0, &(&1 + &2))
+> Enum.reduce([1,2,3], 0, &+/2)
+> Enum.sum([1, 2, 3])
+> Enum.sum([1, "not a number", 2, :x, 3])
+```
+
+```elixir
+> Enum.reduce(
+  [1, "not a number", 2, :x, 3],
+  0,
+  fn
+    element, sum when is_number(element) ->
+      sum + element
+
+    _, sum ->
+      sum
+  end
+)
+```
+
+```elixir
+defmodule NumHelper do
+  def sum_nums(enumerable), do: Enum.reduce(enumerable, 0, &add_num/2)
+  defp add_num(num, sum) when is_number(num), do: sum + num
+  defp add_num(_, sum), do: sum
+end
+
+> NumHelper.sum_nums([1, "not a number", 2, :x, 3])
+```
+
+```elixir
+defmodule UserExtraction do
+  def extract_user(user) do
+    case Enum.filter(
+           ["login", "email", "password"],
+           &(not Map.has_key?(user, &1))
+         ) do
+      [] ->
+        {:ok,
+         %{
+           login: user["login"],
+           email: user["email"],
+           password: user["password"]
+         }}
+
+      missing_fields ->
+        {:error, "missing fields: #{Enum.join(missing_fields, ", ")}"}
+    end
+  end
+end
+
+> UserExtraction.extract_user(%{})
+{:error, "missing fields: login, email, password"}
+> UserExtraction.extract_user(%{"login" => "some_login"})
+{:error, "missing fields: email, password"}
+> UserExtraction.extract_user(%{"login" => "some_login", "email" => "some_email"})
+{:error, "missing fields: password"}
+> UserExtraction.extract_user(%{
+  "login" => "some_login",
+  "email" => "some_email",
+  "password" => "some_password"
+})
+{:ok, %{email: "some_email", login: "some_login", password: "some_password"}}
+```
+
+- https://hexdocs.pm/elixir/Enum.html
+
+### Comprehensions
+
+```elixir
+> for x <- [1, 2, 3], do: x * x
+[1, 4, 9]
+> for x <- [1, 2, 3], y <- [1, 2, 3], do: {x, y, x * y}
+> for x <- 1..9, y <- 1..9, do: {x, y, x * y}
+```
+
+```elixir
+> multiplication_table = for x <- 1..9, y <- 1..9, into: %{}, do: {{x, y}, x * y}
+> multiplication_table[{7, 6}]
+42
+```
+
+```elixir
+> multiplication_table =
+  for x <- 1..9, y <- 1..9, x <= y, into: %{} do
+    {{x, y}, x * y}
+  end
+
+> multiplication_table[{6, 7}]
+42
+> multiplication_table[{7, 6}]
+nil
+```
+
+- https://hexdocs.pm/elixir/Kernel.SpecialForms.html#for/1
+
+### Streams
+
+Lazy, lazy, lazy...
+
+```elixir
+> [1, 2, 3] |>
+Stream.map(fn x -> 2 * x end) |>
+Enum.take(2)
+[2, 4]
+
+> ["Alice", "Bob", "John"] |>
+Stream.with_index() |>
+Enum.each(fn {employee, index} -> IO.puts("#{index + 1}. #{employee}") end)
+
+> [9, -1, "foo", 25, 49, 49.0, 32.3, 32] |>
+Stream.filter(&(is_number(&1) and &1 > 0)) |>
+Stream.map(&{&1, :math.sqrt(&1)}) |>
+Stream.with_index() |>
+Enum.each(fn {{input, result}, index} ->
+  IO.puts("#{index + 1}. sqrt(#{input}) = #{result}")
+end)
+```
+
+```elixir
+defmodule FileUtils do
+  def large_lines!(path) do
+    path
+    |> lines_stream!()
+    |> Enum.filter(&(String.length(&1) > 80))
+  end
+
+  def lines_lengths!(path) do
+    path
+    |> lines_stream!()
+    |> Enum.map(&String.length/1)
+  end
+
+  def longest_line_length!(path) do
+    path
+    |> lines_stream!()
+    |> Stream.map(&String.length/1)
+    |> Enum.max()
+  end
+
+  def longest_line!(path) do
+    path
+    |> lines_stream!()
+    |> Enum.max_by(&String.length/1)
+  end
+
+  def words_per_line!(path) do
+    path
+    |> lines_stream!()
+    |> Enum.map(&count_words/1)
+  end
+
+  defp lines_stream!(path) do
+    path
+    |> File.stream!()
+    |> Stream.map(&String.replace(&1, "\n", ""))
+  end
+
+  defp count_words(string) do
+    string
+    |> String.split()
+    |> length()
+  end
+end
+
+> FileUtils.large_lines!("./elixir_in_action/chapter_3/notes.md")
+> FileUtils.lines_lengths!("./elixir_in_action/chapter_3/notes.md")
+> FileUtils.longest_line_length!("./elixir_in_action/chapter_3/notes.md")
+> FileUtils.longest_line!("./elixir_in_action/chapter_3/notes.md")
+> FileUtils.words_per_line!("./elixir_in_action/chapter_3/notes.md")
+```
+
+- https://hexdocs.pm/elixir/Stream.html
