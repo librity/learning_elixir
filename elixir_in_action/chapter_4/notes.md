@@ -92,11 +92,31 @@ end
 
 - The only complex types are tuples, lists, and maps.
 
-###
+### Immutable hierarchical updates
 
 ```elixir
+> todo_list = %{
+    1 => %{date: ~D[2018-12-19], title: "Dentist"},
+    2 => %{date: ~D[2018-12-20], title: "Shopping"},
+    3 => %{date: ~D[2018-12-19], title: "Movies"}
+  }
+> put_in(todo_list[3].title, "Theater")
+%{
+  1 => %{date: ~D[2018-12-19], title: "Dentist"},
+  2 => %{date: ~D[2018-12-20], title: "Shopping"},
+  3 => %{date: ~D[2018-12-19], title: "Theater"}
+}
 
+> path = [2, :title]
+> put_in(todo_list, path, "Theater")
+%{
+  1 => %{date: ~D[2018-12-19], title: "Dentist"},
+  2 => %{date: ~D[2018-12-20], title: "Theater"},
+  3 => %{date: ~D[2018-12-19], title: "Movies"}
+}
 ```
+
+- https://hexdocs.pm/elixir/Access.html
 
 ###
 

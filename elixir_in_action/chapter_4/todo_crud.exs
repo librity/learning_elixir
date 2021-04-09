@@ -46,13 +46,21 @@ defmodule Todo do
     end
   end
 
-  defp handle_update(todo_list, old_entry, updater_fun) do
-    old_id = old_entry.id
-    new_entry = %Entry{id: ^old_id} = updater_fun.(old_entry)
-    new_entries = Map.put(todo_list.entries, new_entry.id, new_entry)
+  defp handle_update(todo_list, %Entry{id: id} = old_entry, updater_fun) do
+    new_entry = %Entry{id: ^id} = updater_fun.(old_entry)
 
-    %__MODULE__{todo_list | entries: new_entries}
+    put_in(todo_list.entries[id], new_entry)
   end
+
+  def delete_entry(%__MODULE__{} = todo_list, entry_id) do
+    case Map.fetch(todo_list.entries, entry_id) do
+      :error -> todo_list
+      {:ok, %Entry{id: entry_id}} -> handle_delete(todo_list, entry_id)
+    end
+  end
+
+  defp handle_delete(todo_list, entry_id),
+    do: put_in(todo_list.entries, Map.delete(todo_list.entries, entry_id))
 end
 
 todo_list = Todo.new()
@@ -73,3 +81,6 @@ Todo.update_entry(todo_list, 8, &Map.put(&1, :title, "Zoo"))
 
 Todo.update_entry(todo_list, Todo.Entry.new(1, ~D[2021-12-20], "Rock climbing"))
 Todo.update_entry(todo_list, Todo.Entry.new(8, ~D[2021-12-20], "Rock climbing"))
+
+Todo.delete_entry(todo_list, 1)
+Todo.delete_entry(todo_list, 8)
