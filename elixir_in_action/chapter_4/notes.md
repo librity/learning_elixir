@@ -59,6 +59,7 @@ true
 Record
 > Record.is_record({User, "john", 27})
 true
+> Record.extract(:file_info, from_lib: "kernel/include/file.hrl")
 
 defmodule MyModule do
   require Record
@@ -70,6 +71,62 @@ end
 ```
 
 - https://hexdocs.pm/elixir/Record.html
+
+### Data transparency
+
+```elixir
+> Fraction.new(1, 4) |>  IO.inspect() |> Fraction.value()
+%Fraction{deno: 4, num: 1}
+0.25
+
+> mapset = MapSet.new([:monday, :tuesday])
+#MapSet<[:monday, :tuesday]>
+> IO.puts(inspect(mapset, structs: false))
+%{__struct__: MapSet, map: %{monday: [], tuesday: []}, version: 2}
+
+> IO.puts(inspect(~D[2018-12-19], structs: false))
+%{__struct__: Date, calendar: Calendar.ISO, day: 19, month: 12, year: 2018}
+> IO.puts(inspect(~N[2018-12-19 20:02:01], structs: false))
+%{__struct__: NaiveDateTime, calendar: Calendar.ISO, day: 19, hour: 20, microsecond: {0, 0}, minute: 2, month: 12, second: 1, year: 2018}
+```
+
+- The only complex types are tuples, lists, and maps.
+
+###
+
+```elixir
+
+```
+
+###
+
+```elixir
+
+```
+
+###
+
+```elixir
+
+```
+
+###
+
+```elixir
+
+```
+
+###
+
+```elixir
+
+```
+
+###
+
+```elixir
+
+```
 
 ###
 
