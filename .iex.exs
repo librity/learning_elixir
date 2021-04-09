@@ -8,7 +8,7 @@ eval_config = [
 IEx.configure(colors: eval_config)
 
 prompt_config =
-  ["\e[G", :red, ">", :reset]
+  ["\e[G", :cyan, ">", :reset]
   |> IO.ANSI.format()
   |> IO.chardata_to_string()
 
