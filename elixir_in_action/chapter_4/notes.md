@@ -118,17 +118,66 @@ end
 
 - https://hexdocs.pm/elixir/Access.html
 
-###
+### Polymorphism with protocols
 
 ```elixir
-
+> Enum.each([1, 2, 3], &IO.inspect/1)
+> Enum.each(1..3, &IO.inspect/1)
+> Enum.each(%{a: 1, b: 2}, &IO.inspect/1)
 ```
-
-###
 
 ```elixir
+defprotocol String.Chars do
+  def to_string(thing)
+end
 
+> String.Chars.to_string(1)
+"1"
+> String.Chars.to_string(:an_atom)
+"an_atom"
+> String.Chars.to_string([1, 2])
+<<1, 2>>
+> String.Chars.to_string(%{a: 1, b: 2})
+** (Protocol.UndefinedError) protocol String.Chars not implemented for %{a: 1, b: 2} of type Map
+
+> IO.puts(1)
+1
+:ok
+> IO.puts(:an_atom)
+an_atom
+:ok
+> IO.puts(%{a: 1})
+** (Protocol.UndefinedError) protocol String.Chars not implemented for %{a: 1} of type Map
 ```
+
+### Implementing protocols
+
+```elixir
+defimpl String.Chars, for: Integer do
+  def to_string(term) do
+    Integer.to_string(term)
+  end
+end
+
+defimpl String.Chars, for: Map do
+  def to_string(map), do: Enum.reduce(map, '\n', &stringify_map/2)
+  defp stringify_map({key, value}, acc), do: List.insert_at(acc, -1, "#{key}: #{value}\n")
+end
+
+> IO.puts(1)
+1
+:ok
+> IO.puts(%{a: 1, b: 2})
+
+a: 1
+b: 2
+
+:ok
+```
+
+- `for:` `Tuple`, `Atom`, `List`, `Map`, `BitString`, `Integer`, `Float`,
+  `Function`, `PID`, `Port`, `Reference` or `Any`
+- https://hexdocs.pm/elixir/Kernel.html#defprotocol/2
 
 ###
 
