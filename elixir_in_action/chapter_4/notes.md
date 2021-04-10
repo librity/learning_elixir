@@ -165,40 +165,11 @@ defimpl String.Chars, for: Map do
 end
 
 > IO.puts(1)
-1
-:ok
 > IO.puts(%{a: 1, b: 2})
-
-a: 1
-b: 2
-
-:ok
 ```
 
 - `for:` `Tuple`, `Atom`, `List`, `Map`, `BitString`, `Integer`, `Float`,
   `Function`, `PID`, `Port`, `Reference` or `Any`
+- Built-in protocols: `String.Chars`, `List.Chars`, `Inspect`,
+  `Enumerable`, `Collectable`
 - https://hexdocs.pm/elixir/Kernel.html#defprotocol/2
-
-###
-
-```elixir
-
-```
-
-###
-
-```elixir
-
-```
-
-###
-
-```elixir
-
-```
-
-###
-
-```elixir
-
-```
