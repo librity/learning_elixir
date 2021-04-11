@@ -143,6 +143,12 @@ defmodule Todo.Server do
 
     todo
   end
+
+  defp process_message(todo, bad_mesage) do
+    IO.puts("Invalid request: #{inspect(bad_mesage)}")
+
+    todo
+  end
 end
 
 pid = Todo.Server.start()

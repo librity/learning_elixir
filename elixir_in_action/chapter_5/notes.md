@@ -102,26 +102,16 @@ receive do
 end
 ```
 
-###
+### Disemboweling the VM
 
-```elixir
-
+```bash
+iex --erl "put Erlang emulator flags here"
+# Start iex with 12 schedulers
+iex --erl "+S 12"
+# Start iex with 20 async threads (that handle I/O)
+iex --erl "+A 20"
+# Start iex with kernel polls enabled
+iex --erl "+K true"
 ```
 
-###
-
-```elixir
-
-```
-
-###
-
-```elixir
-
-```
-
-###
-
-```elixir
-
-```
+- http://erlang.org/doc/man/erl.html
