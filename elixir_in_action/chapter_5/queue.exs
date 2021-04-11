@@ -1,5 +1,5 @@
 defmodule Queue do
-  @query_time 2000
+  @timeout_limit 1000
 
   def start(initial_queue \\ []), do: spawn(fn -> loop(initial_queue) end)
 
@@ -20,7 +20,7 @@ defmodule Queue do
       {:enqueue_result, result} -> result
       {:dequeue_result, result} -> result
     after
-      1000 -> {:error, :timeout}
+      @timeout_limit -> {:error, :timeout}
     end
   end
 

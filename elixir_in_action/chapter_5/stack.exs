@@ -1,5 +1,5 @@
 defmodule Stack do
-  @query_time 2000
+  @timeout_limit 1000
 
   def start(initial_stack \\ []), do: spawn(fn -> loop(initial_stack) end)
 
@@ -20,7 +20,7 @@ defmodule Stack do
       {:push_result, result} -> result
       {:pop_result, result} -> result
     after
-      1000 -> {:error, :timeout}
+      @timeout_limit -> {:error, :timeout}
     end
   end
 

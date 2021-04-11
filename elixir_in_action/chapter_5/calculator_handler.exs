@@ -23,30 +23,25 @@ defmodule Calculator do
   defp loop(value \\ 0) do
     new_value =
       receive do
-        {:value_request, caller} -> handle_value(caller, value)
-        {:add_request, factor} -> handle_add(value, factor)
-        {:sub_request, factor} -> handle_sub(value, factor)
-        {:mul_request, factor} -> handle_mul(value, factor)
-        {:div_request, factor} -> handle_div(value, factor)
-        bad_request -> handle_bad_request(bad_request, value)
+        message -> process_message(value, message)
       end
 
     loop(new_value)
   end
 
-  defp handle_value(caller, value) do
+  defp process_message(value, {:value_request, caller}) do
     send(caller, {:value_response, value})
 
     value
   end
 
-  defp handle_add(value, factor), do: value + factor
-  defp handle_sub(value, factor), do: value - factor
-  defp handle_mul(value, factor), do: value * factor
-  defp handle_div(value, factor), do: value / factor
+  defp process_message(value, {:add_request, factor}), do: value + factor
+  defp process_message(value, {:sub_request, factor}), do: value - factor
+  defp process_message(value, {:mul_request, factor}), do: value * factor
+  defp process_message(value, {:div_request, factor}), do: value / factor
 
-  defp handle_bad_request(request, value) do
-    IO.puts("Invalid request: #{inspect(request)}")
+  defp process_message(value, bad_mesage) do
+    IO.puts("Invalid request: #{inspect(bad_mesage)}")
 
     value
   end
