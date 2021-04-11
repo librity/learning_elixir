@@ -91,10 +91,15 @@ results = Enum.map(1..5, fn _ -> get_result.() end)
 1..5 |> Enum.map(&async_query.("query #{&1}")) |> Enum.map(fn _ -> get_result.() end)
 ```
 
-###
+### Registered processes
 
 ```elixir
+Process.register(self(), :me)
+send(:me, :msg)
 
+receive do
+  msg -> IO.puts("received #{msg}")
+end
 ```
 
 ###
